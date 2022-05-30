@@ -1,2 +1,2 @@
 # Project-Rythm
-An Rythm game project with my friends~!
+A Rythm game project with my friends~!
