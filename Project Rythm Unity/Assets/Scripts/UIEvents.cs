@@ -34,7 +34,7 @@ public class UIEvents : MonoBehaviour
     }
 
     public void EnteringFirstChapter(){
-        TransitionScene("FirstChapter");
+        TransitionScene("GameStage");
         
     }
 
