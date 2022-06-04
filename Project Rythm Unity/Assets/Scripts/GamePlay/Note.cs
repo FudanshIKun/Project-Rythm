@@ -5,9 +5,10 @@ using UnityEngine.UI;
 
 public class Note : MonoBehaviour
 {
+    //Game Component
+    public Image image;
     //Graphic Properties
     [SerializeField] Color redColor, blueColor, purpleColor;
-    Image image;
     Color noteColor;
     //Note Properties
     public int colorCode = 0;
@@ -16,10 +17,20 @@ public class Note : MonoBehaviour
     public float tShow = 0;
     public float timeTohit = 0;
     //Component
-    public StageManager stageM; 
+    public StageManager stageM;
+    Transform spawnPoint;
     void Start()
     {
-        image = GetComponent<Image>();
+        set_color();
+        set_spawnPoint();
+    }
+    void Update()
+    {
+        railPositionUpdate();
+        noteStateUpdate();
+    }
+    void set_color()
+    {
         //Random Color
         colorCode = Random.Range(0, 3);
         if (colorCode == 0)
@@ -36,21 +47,38 @@ public class Note : MonoBehaviour
         }
         image.color = noteColor;
     }
-    void Update()
+    void set_spawnPoint()
     {
-        railPositionUpdate();
-        noteStateUpdate();
+        //Set Spawn Point
+        spawnPoint = stageM.spawnPointRed;
+        if (colorCode == 1)
+        {
+            spawnPoint = stageM.spawnPointBlue;
+        }
+        if (colorCode == 2)
+        {
+            int random = Random.Range(0, 2);
+            spawnPoint = random == 0 ? stageM.spawnPointBlue : stageM.spawnPointRed;
+        }
+        transform.position = spawnPoint.position;
     }
     void railPositionUpdate()
     {
         timeTohit = (hitTimeStamp - stageM.gameElasTime);
 
         //fade in animation
-        float fadeT = Mathf.Clamp(1 - (timeTohit / stageM.showTime - 0.9f) / 0.1f, 0f, 1f);
+        float fadeT = Mathf.Clamp(1 - (timeTohit / stageM.showTime - stageM.noteFadeinTime) / 0.1f, 0f, 1f);
         noteColor.a = fadeT;
         image.color = noteColor;
 
-        transform.position = learpWithOutClamp(stageM.hitPoint.position, stageM.spawnPoint.position, timeTohit / stageM.showTime);
+        //Miss
+        if (-timeTohit > stageM.missTime)
+        {
+            stageM.note_miss();
+            Destroy(gameObject);
+        }
+        transform.position = learpWithOutClamp(stageM.hitPoint.position, spawnPoint.position, timeTohit / stageM.showTime);
+
     }
     Vector2 learpWithOutClamp(Vector2 a, Vector2 b, float t)
     {
@@ -58,17 +86,9 @@ public class Note : MonoBehaviour
     }
     void noteStateUpdate()
     {
-        if (-timeTohit > stageM.missTime)
+        if (stageM.curInput == colorCode + 1 & timeTohit < stageM.goodInterval)
         {
-            Destroy(gameObject);
-        }
-        if (Input.GetMouseButtonDown(colorCode) & timeTohit < stageM.goodInterval)
-        {
-            Destroy(gameObject);
-        }
-        //Double Input Checker
-        if (Input.GetMouseButton(0) & Input.GetMouseButton(1) & timeTohit < stageM.goodInterval & colorCode == 2)
-        {
+            stageM.note_hit(colorCode);
             Destroy(gameObject);
         }
     }
