@@ -1,19 +1,27 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
+using System.Threading.Tasks;
+using UnityEngine.UI;
 using UnityEngine;
 
 public class UIEvents : MonoBehaviour
 {
-    public GameObject FirstChapterSettingCanvas;
-    public GameObject FirstChapterCanvas;
-    public GameObject SettingCanvas;
-    public GameObject ChapterCanvas;
+    [Header("Transition Setting")]
+    public GameObject transitionCanvas;
+    public Image TransitionPanel;
+    [SerializeField] Color startTransition;
+    [SerializeField] Color endTransition;
+    float elapsedTime;
+
+    [Header("Canvas Setting")]
+    public GameObject firstChapterSettingCanvas;
+    public GameObject firstChapterCanvas;
     public GameObject mainCanvas;
 
     public void PlayButton_Click(){
         mainCanvas.SetActive(false);
-        ChapterCanvas.SetActive(true);
-        GameManager.singleton.GamePlayState = GameManager.State.SelectingChapter;
+        firstChapterCanvas.SetActive(true);
     }
     
     public void ExitButton_Click(){
@@ -22,50 +30,39 @@ public class UIEvents : MonoBehaviour
 
     public void BackButton_Click(){
         mainCanvas.SetActive(true);
-        ChapterCanvas.SetActive(false);
-        GameManager.singleton.GamePlayState = GameManager.State.MainMenu;
+        firstChapterCanvas.SetActive(false);        
     }
 
     public void EnteringFirstChapter(){
-        ChapterCanvas.SetActive(false);
-        FirstChapterCanvas.SetActive(true);
+        TransitionScene("FirstChapter");
+        
     }
 
-    public void FirstChapterBack_Click(){
-        ChapterCanvas.SetActive(true);
-        FirstChapterCanvas.SetActive(false);
-        GameManager.singleton.GamePlayState = GameManager.State.SelectingChapter;
-    }
-
-    public void SettingBack_Click(){
-        mainCanvas.SetActive(true);
-        SettingCanvas.SetActive(false);
-        GameManager.singleton.GamePlayState = GameManager.State.MainMenu;
-    }
-
-    public void SettingButton_Click(){
-        mainCanvas.SetActive(false);
-        SettingCanvas.SetActive(true);
-        GameManager.singleton.GamePlayState = GameManager.State.Setting;
+    async void TransitionScene(string sceneName){
+        transitionCanvas.SetActive(true);
+        while(TransitionPanel.color != endTransition){
+            elapsedTime += Time.deltaTime;
+            TransitionPanel.color = Color.Lerp(startTransition, endTransition, elapsedTime/1.5f);
+            await Task.Yield();
+        }
+        await Task.Delay(4000);
+        SceneManager.LoadScene(sceneName);
     }
 
     void Start()
     {
-        GameManager.singleton.GamePlayState = GameManager.State.MainMenu;
-        if (mainCanvas == null){return;}
-        mainCanvas.SetActive(true);
+        if (mainCanvas != null){ mainCanvas.SetActive(true);}
 
-        if (ChapterCanvas == null){return;}
-        ChapterCanvas.SetActive(false);
+        if (firstChapterCanvas != null){firstChapterCanvas.SetActive(false);}
+        
+        if (firstChapterSettingCanvas != null){firstChapterSettingCanvas.SetActive(false);}
 
-        if (SettingCanvas == null){return;}
-        SettingCanvas.SetActive(false);
-
-        if (FirstChapterCanvas == null){return;}
-        FirstChapterCanvas.SetActive(false);
-
-        if (FirstChapterSettingCanvas == null){return;}
-        FirstChapterSettingCanvas.SetActive(false);
+        if (TransitionPanel != null){
+            TransitionPanel.color = startTransition;
+            TransitionPanel.raycastTarget = false;
+            transitionCanvas.SetActive(false);
+        }
+        
     }
 
     
