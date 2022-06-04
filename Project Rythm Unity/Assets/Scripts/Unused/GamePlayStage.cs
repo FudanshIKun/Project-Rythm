@@ -62,8 +62,5 @@ public class GamePlayStage : MonoBehaviour
     
     void Update()
     {
-        Debug.Log("Notes in scene : " + notesInScene.Count);
-        Debug.Log("Last color : " + notesInScene[0].Color);
-        Debug.Log("Combo" + combo);
     }
 }

@@ -92,6 +92,6 @@ public class SoundManager : MonoBehaviour
 
     void Update() {
         ChangeVolume();
-        Debug.Log("Playback : " + mainSpeaker.time);
+        //Debug.Log("Playback : " + mainSpeaker.time);
     }
 }
