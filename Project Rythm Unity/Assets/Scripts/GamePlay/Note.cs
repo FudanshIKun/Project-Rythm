@@ -67,9 +67,11 @@ public class Note : MonoBehaviour
         timeTohit = (hitTimeStamp - stageM.gameElasTime);
 
         //fade in animation
-        float fadeT = Mathf.Clamp(1 - (timeTohit / stageM.showTime - stageM.noteFadeinTime) / 0.1f, 0f, 1f);
+        float t = timeTohit / stageM.showTime;
+        float fadeT = Mathf.Clamp(1.5f - t, 0f, 1f);
         noteColor.a = fadeT;
         image.color = noteColor;
+        transform.localScale = new Vector2(fadeT, fadeT);
 
         //Miss
         if (-timeTohit > stageM.missTime)
@@ -88,7 +90,7 @@ public class Note : MonoBehaviour
     {
         if (stageM.curInput == colorCode + 1 & timeTohit < stageM.goodInterval)
         {
-            stageM.note_hit(colorCode);
+            stageM.note_hit(colorCode, hitTimeStamp - stageM.gameElasTime);
             Destroy(gameObject);
         }
     }
